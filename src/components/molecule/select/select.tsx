@@ -20,10 +20,11 @@ export type SelectProps = {
 	value: string;
 	placeholder: string;
 	options: SelectOptionProps[];
+	onChange: (selection: string) => void;
 };
 
 export const Select = (props: SelectProps) => {
-	const { label, options, value, placeholder } = props;
+	const { label, options, value, placeholder, onChange } = props;
 
 	const [isOpen, setIsOpen] = useState(false);
 	const wrapperRef = useRef<HTMLDivElement>(null);
@@ -63,7 +64,7 @@ export const Select = (props: SelectProps) => {
 				</SelectControl>
 				<SelectOptionContainer isOpen={isOpen}>
 					{options.map((option) => (
-						<SelectOption>
+						<SelectOption onClick={(e) => onChange(option.value)}>
 							<Typography
 								value={option.value}
 								variant='body'
