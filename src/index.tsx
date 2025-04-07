@@ -6,6 +6,12 @@ import App from 'app/App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from 'styled-components';
 import { theme } from 'assets/theme';
+import {
+	AcceptQuotePage,
+	ExpiredQuotePage,
+	PayinPageWrapper,
+	PayQuotePage,
+} from 'pages/quote';
 
 const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement,
@@ -16,9 +22,25 @@ root.render(
 			<BrowserRouter>
 				<Routes>
 					<Route
-						path='/'
-						element={<App />}
-					/>
+						path='/payin'
+						element={<PayinPageWrapper />}
+					>
+						<Route
+							index
+							path=':UUID'
+							element={<AcceptQuotePage />}
+						/>
+						<Route
+							index
+							path=':UUID/pay'
+							element={<PayQuotePage />}
+						/>
+						<Route
+							index
+							path=':UUID/expired'
+							element={<ExpiredQuotePage />}
+						/>
+					</Route>
 				</Routes>
 			</BrowserRouter>
 		</ThemeProvider>
