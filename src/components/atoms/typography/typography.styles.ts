@@ -1,9 +1,9 @@
-import styled from 'styled-components';
-import { TypographyProps, TypographySpacing } from './typography';
+import styled, { css } from 'styled-components';
+import { TypographyProps } from './typography';
 
 type TypographyStyleProps = Pick<
 	TypographyProps,
-	'variant' | 'colour' | 'padding' | 'margin'
+	'variant' | 'colour' | 'padding' | 'margin' | 'truncated'
 >;
 
 export const StyledTypography = styled.p<TypographyStyleProps>`
@@ -23,4 +23,14 @@ export const StyledTypography = styled.p<TypographyStyleProps>`
 	padding-bottom: ${(props) => props.padding?.bottom || 0}rem;
 	padding-left: ${(props) => props.padding?.left || 0}rem;
 	max-width: 47ch;
+
+	${(props) =>
+		props.truncated &&
+		css`
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			display: block;
+			max-width: 24ch;
+		`}
 `;
