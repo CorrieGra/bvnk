@@ -1,21 +1,28 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes } from 'react-router';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from 'app/App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider } from 'styled-components';
+import { theme } from 'assets/theme';
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+	document.getElementById('root') as HTMLElement,
 );
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<App />}/>
-      </Routes>
-    </BrowserRouter>
-  </React.StrictMode>
+	<React.StrictMode>
+		<ThemeProvider theme={theme}>
+			<BrowserRouter>
+				<Routes>
+					<Route
+						path='/'
+						element={<App />}
+					/>
+				</Routes>
+			</BrowserRouter>
+		</ThemeProvider>
+	</React.StrictMode>,
 );
 
 // "Accept Quote": <DOMAIN>/payin/<UUID>
