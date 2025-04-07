@@ -26,18 +26,20 @@ root.render(
 						element={<PayinPageWrapper />}
 					>
 						<Route
+							index
 							path=':UUID'
 							element={<AcceptQuotePage />}
-						>
-							<Route
-								path='pay'
-								element={<PayQuotePage />}
-							/>
-							<Route
-								path='expired'
-								element={<ExpiredQuotePage />}
-							/>
-						</Route>
+						/>
+						<Route
+							index
+							path=':UUID/pay'
+							element={<PayQuotePage />}
+						/>
+						<Route
+							index
+							path=':UUID/expired'
+							element={<ExpiredQuotePage />}
+						/>
 					</Route>
 				</Routes>
 			</BrowserRouter>
