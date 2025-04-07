@@ -1,7 +1,8 @@
 import React from 'react';
+import { BrowserRouter, Route, Routes } from "react-router";
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import App from './app/App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -9,9 +10,17 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<App />}/>
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
+
+// "Accept Quote": <DOMAIN>/payin/<UUID>
+// "Pay Quote": <DOMAIN>/payin/<UUID>/pay
+// "Expiry": <DOMAIN>/payin/<UUID>/expired
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
