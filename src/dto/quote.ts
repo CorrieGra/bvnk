@@ -1,8 +1,16 @@
-export interface CurrencyAmount {
+export type CurrencyAmount = {
 	currency: string | null;
 	amount: number;
 	actual: number;
-}
+};
+
+type QuoteAddress = {
+	address: string;
+	tag: string;
+	protocol: string;
+	uri: string;
+	alternatives: any[];
+};
 
 export interface Quote {
 	uuid: string;
@@ -24,7 +32,7 @@ export interface Quote {
 	networkFeeCurrency: CurrencyAmount | null;
 	displayRate: number | null;
 	exchangeRate: number | null;
-	address: string | null;
+	address: QuoteAddress | null;
 	returnUrl: string;
 	redirectUrl: string;
 	transactions: any[];

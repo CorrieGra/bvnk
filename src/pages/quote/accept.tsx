@@ -2,6 +2,12 @@ import axios, { AxiosResponse } from 'axios';
 import { Typography } from 'components/atoms';
 import { Select } from 'components/molecule';
 import { Quote } from 'dto/quote';
+import {
+	PayInCurrency,
+	PayInCurrencyAtom,
+	QuoteAtom,
+} from 'features/store/payin';
+import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
@@ -26,9 +32,9 @@ const formatTimeFromTimestamps = (expiryDate: number) => {
 
 export const AcceptQuotePage = () => {
 	const navigate = useNavigate();
+	const [quote, setQuote] = useAtom(QuoteAtom);
+	const [payinCurrency, setPayinCurrency] = useAtom(PayInCurrencyAtom);
 	const { UUID } = useParams<AcceptPageParamas>();
-	const [quote, setQuote] = useState<Quote>();
-	const [payinCurrency, setPayinCurrency] = useState<string>('');
 
 	useEffect(() => {
 		const getQuote = async () => {
@@ -67,17 +73,19 @@ export const AcceptQuotePage = () => {
 		}
 	}, [payinCurrency]);
 
-	const handleCurrencySelect = useCallback((currency: string) => {
+	const handleCurrencySelect = useCallback((currency: PayInCurrency) => {
 		setPayinCurrency(currency);
 	}, []);
 
 	const handleConfirmation = useCallback(async () => {
 		try {
 			const data = { successUrl: 'no_url' };
-			await axios.put(
+			const quoteResponse = await axios.put(
 				`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/accept/summary`,
 				data,
 			);
+			const { data: updatedQuote } = quoteResponse;
+			setQuote({ ...quote, ...updatedQuote });
 			navigate(`/payin/${UUID}/pay`);
 		} catch (error) {
 			navigate(`/payin/${UUID}/expired`);
@@ -123,7 +131,7 @@ export const AcceptQuotePage = () => {
 				<Select
 					label='Pay with'
 					placeholder='Select a currency'
-					value={payinCurrency}
+					value={payinCurrency ?? ''}
 					onChange={handleCurrencySelect}
 					options={[
 						{
