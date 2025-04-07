@@ -17,17 +17,17 @@ export const PayQuotePage = () => {
 	const [QRCodeSVG, setQRCodeSVG] = useState<string>();
 
 	useEffect(() => {
-		try {
-			const getQRCode = async () => {
+		const getQRCode = async () => {
+			try {
 				const svg = await qrcode.toDataURL(quote?.address?.address!);
 				setQRCodeSVG(svg);
-			};
+			} catch (_) {
+				navigate(`/payin/${UUID}/expired`);
+			}
+		};
 
-			void getQRCode();
-		} catch (error) {
-			navigate(`/payin/${UUID}/expired`);
-		}
-	}, []);
+		void getQRCode();
+	}, [quote]);
 
 	const handleCopy = useCallback(
 		(text: any) => {
