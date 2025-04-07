@@ -1,2 +1,4 @@
 import { Card } from './card';
-export { Card };
+import { Select } from './select';
+
+export { Card, Select };
