@@ -1,11 +1,11 @@
 import { Typography } from 'components/atoms';
-import { Card } from 'components/molecule';
-import { QuoteAtom } from 'features/store/payin';
-import { useAtom } from 'jotai';
+import { Card, List } from 'components/molecule';
+import { PayInCurrencyAtom, QuoteAtom } from 'features/store/payin';
+import { useAtom, useAtomValue } from 'jotai';
 import qrcode from 'qrcode';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 type PayQuotePageParamas = {
 	UUID: string;
@@ -15,6 +15,7 @@ export const PayQuotePage = () => {
 	const navigate = useNavigate();
 	const { UUID } = useParams<PayQuotePageParamas>();
 	const [quote, _] = useAtom(QuoteAtom);
+	const payInCurrency = useAtomValue(PayInCurrencyAtom);
 	const [QRCodeSVG, setQRCodeSVG] = useState<string>();
 
 	useEffect(() => {
@@ -29,14 +30,6 @@ export const PayQuotePage = () => {
 
 		void getQRCode();
 	}, [quote]);
-
-	const handleCopy = useCallback(
-		(text: any) => {
-			navigator.clipboard.writeText(text);
-			toast('Copied to clipboard!');
-		},
-		[quote?.address, quote?.paidCurrency],
-	);
 
 	return (
 		<>
@@ -55,64 +48,21 @@ export const PayQuotePage = () => {
 				/>
 			</Card.Header>
 			<Card.Body>
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Typography
-						value='Amount due'
-						variant='body'
-						colour='lightgray'
-					/>
-					<span style={{ display: 'flex' }}>
-						<Typography
-							value={`${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`}
-							variant='body'
-							colour='gray'
-						/>
-						<span onClick={() => handleCopy(quote?.paidCurrency.amount)}>
-							<Typography
-								value='Copy'
-								variant='body'
-								colour='blue'
-								padding={{ left: 0.5 }}
-							/>
-						</span>
-					</span>
-				</div>
-
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Typography
-						value='BTC address'
-						variant='body'
-						colour='lightgray'
-					/>
-					<span style={{ display: 'flex' }}>
-						<Typography
-							value={quote?.address?.address}
-							variant='body'
-							colour='gray'
-							truncated
-						/>
-						<span onClick={() => handleCopy(quote?.address?.address!)}>
-							<Typography
-								value='Copy'
-								variant='body'
-								colour='blue'
-								padding={{ left: 0.5 }}
-							/>
-						</span>
-					</span>
-				</div>
+				<List
+					data={[
+						{
+							label: 'Amount due',
+							value: `${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`,
+							canBeCopied: true,
+						},
+						{
+							label: `${payInCurrency} address`,
+							value: quote?.address?.address || '',
+							canBeCopied: true,
+							truncateValue: true,
+						},
+					]}
+				/>
 
 				{QRCodeSVG && (
 					<div
@@ -136,24 +86,14 @@ export const PayQuotePage = () => {
 					</div>
 				)}
 
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Typography
-						value='Time left to pay'
-						variant='body'
-						colour='lightgray'
-					/>
-					<Typography
-						value='00:00:31'
-						variant='body'
-						colour='gray'
-					/>
-				</div>
+				<List
+					data={[
+						{
+							label: 'Time left to pay',
+							value: quote?.quoteExpiryDate!.toString() ?? '00:00:00',
+						},
+					]}
+				/>
 			</Card.Body>
 			<ToastContainer />
 		</>

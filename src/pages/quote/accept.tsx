@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { Button, Typography } from 'components/atoms';
-import { Card, Select } from 'components/molecule';
+import { Card, List, Select } from 'components/molecule';
 import { Quote } from 'dto/quote';
 import {
 	PayInCurrency,
@@ -142,48 +142,19 @@ export const AcceptQuotePage = () => {
 					]}
 				/>
 
-				{payinCurrency && (
-					<>
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-							}}
-						>
-							<Typography
-								value='Amount due'
-								variant='body'
-								colour='lightgray'
-							/>
-							<Typography
-								value={`${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`}
-								variant='body'
-								colour='gray'
-							/>
-						</div>
-
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-							}}
-						>
-							<Typography
-								value='Quote expires in'
-								variant='body'
-								colour='lightgray'
-							/>
-							<Typography
-								value={formatTimeFromTimestamps(quote?.expiryDate!)}
-								variant='body'
-								colour='gray'
-							/>
-						</div>
-					</>
+				{payinCurrency && quote && (
+					<List
+						data={[
+							{
+								label: 'Amount due',
+								value: `${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`,
+							},
+							{
+								label: 'Quote expires in',
+								value: formatTimeFromTimestamps(quote?.expiryDate!),
+							},
+						]}
+					/>
 				)}
 			</Card.Body>
 
