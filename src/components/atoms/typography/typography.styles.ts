@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { TypographyProps } from './typography';
+import { TypographyProps } from './typography.types';
 
 type TypographyStyleProps = Pick<
 	TypographyProps,
