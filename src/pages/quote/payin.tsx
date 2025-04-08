@@ -1,18 +1,41 @@
 import { Typography } from 'components/atoms';
+import { QuoteAtom } from 'features/store/payin';
+import { useAtom } from 'jotai';
 import qrcode from 'qrcode';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { toast, ToastContainer } from 'react-toastify';
+
+type PayQuotePageParamas = {
+	UUID: string;
+};
 
 export const PayQuotePage = () => {
+	const navigate = useNavigate();
+	const { UUID } = useParams<PayQuotePageParamas>();
+	const [quote, _] = useAtom(QuoteAtom);
 	const [QRCodeSVG, setQRCodeSVG] = useState<string>();
 
 	useEffect(() => {
 		const getQRCode = async () => {
-			const svg = await qrcode.toDataURL('ax01123f0as9');
-			setQRCodeSVG(svg);
+			try {
+				const svg = await qrcode.toDataURL(quote?.address?.address!);
+				setQRCodeSVG(svg);
+			} catch (_) {
+				navigate(`/payin/${UUID}/expired`);
+			}
 		};
 
 		void getQRCode();
-	}, []);
+	}, [quote]);
+
+	const handleCopy = useCallback(
+		(text: any) => {
+			navigator.clipboard.writeText(text);
+			toast('Copied to clipboard!');
+		},
+		[quote?.address, quote?.paidCurrency],
+	);
 
 	return (
 		<>
@@ -52,16 +75,18 @@ export const PayQuotePage = () => {
 					/>
 					<span style={{ display: 'flex' }}>
 						<Typography
-							value='0.00410775 BTC'
+							value={`${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`}
 							variant='body'
 							colour='gray'
 						/>
-						<Typography
-							value='Copy'
-							variant='body'
-							colour='blue'
-							padding={{ left: 0.5 }}
-						/>
+						<span onClick={() => handleCopy(quote?.paidCurrency.amount)}>
+							<Typography
+								value='Copy'
+								variant='body'
+								colour='blue'
+								padding={{ left: 0.5 }}
+							/>
+						</span>
 					</span>
 				</div>
 
@@ -79,16 +104,19 @@ export const PayQuotePage = () => {
 					/>
 					<span style={{ display: 'flex' }}>
 						<Typography
-							value='ax01123f0as9'
+							value={quote?.address?.address}
 							variant='body'
 							colour='gray'
+							truncated
 						/>
-						<Typography
-							value='Copy'
-							variant='body'
-							colour='blue'
-							padding={{ left: 0.5 }}
-						/>
+						<span onClick={() => handleCopy(quote?.address?.address!)}>
+							<Typography
+								value='Copy'
+								variant='body'
+								colour='blue'
+								padding={{ left: 0.5 }}
+							/>
+						</span>
 					</span>
 				</div>
 
@@ -107,9 +135,9 @@ export const PayQuotePage = () => {
 							height={140}
 						/>
 						<Typography
-							value='ax01123f0as9'
+							value={quote?.address?.address}
 							variant='body'
-							colour='gray'
+							colour='lightgray'
 						/>
 					</div>
 				)}
@@ -133,6 +161,7 @@ export const PayQuotePage = () => {
 					/>
 				</div>
 			</div>
+			<ToastContainer />
 		</>
 	);
 };
