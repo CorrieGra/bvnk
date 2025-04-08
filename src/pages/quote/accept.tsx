@@ -4,27 +4,12 @@ import { Card, List, Select } from 'components/molecule';
 import { Quote } from 'dto/quote';
 import { PayInCurrency, PayInCurrencyAtom, QuoteAtom } from 'features/store';
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ConditionalRender } from 'utils/index';
+import { ConditionalRender, formatTimeFromTimestamps } from 'utils/index';
 
 type AcceptPageParamas = {
 	UUID: string;
-};
-
-const formatTimeFromTimestamps = (expiryDate: number) => {
-	const msLeft = expiryDate - Date.now();
-
-	if (msLeft <= 0) return '00:00:00';
-
-	const totalSeconds = Math.floor(msLeft / 1000);
-	const hours = Math.floor(totalSeconds / 3600);
-	const minutes = Math.floor((totalSeconds % 3600) / 60);
-	const seconds = totalSeconds % 60;
-
-	const pad = (n: number) => n.toString().padStart(2, '0');
-
-	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
 export const AcceptQuotePage = () => {

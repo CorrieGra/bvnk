@@ -1,2 +1,3 @@
 import { ConditionalRender } from './conditional-render';
-export { ConditionalRender };
+import { formatTimeFromTimestamps } from './format-time';
+export { ConditionalRender, formatTimeFromTimestamps };
