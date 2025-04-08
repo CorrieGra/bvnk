@@ -24,7 +24,7 @@ export interface Quote {
 	reference: string;
 	type: 'IN' | 'OUT';
 	subType: string;
-	status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+	status: 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 	displayCurrency: CurrencyAmount;
 	walletCurrency: CurrencyAmount;
 	paidCurrency: CurrencyAmount;
