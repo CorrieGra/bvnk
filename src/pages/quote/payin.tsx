@@ -1,11 +1,12 @@
 import { Typography } from 'components/atoms';
 import { Card, List } from 'components/molecule';
-import { PayInCurrencyAtom, QuoteAtom } from 'features/store/payin';
+import { PayInCurrencyAtom, QuoteAtom } from 'features/store';
 import { useAtom, useAtomValue } from 'jotai';
 import qrcode from 'qrcode';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ToastContainer } from 'react-toastify';
+import { ConditionalRender } from 'utils/index';
 
 type PayQuotePageParamas = {
 	UUID: string;
@@ -64,7 +65,7 @@ export const PayQuotePage = () => {
 					]}
 				/>
 
-				{QRCodeSVG && (
+				<ConditionalRender when={!!QRCodeSVG}>
 					<div
 						style={{
 							display: 'flex',
@@ -84,7 +85,7 @@ export const PayQuotePage = () => {
 							colour='lightgray'
 						/>
 					</div>
-				)}
+				</ConditionalRender>
 
 				<List
 					data={[

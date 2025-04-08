@@ -1,15 +1,12 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { Button, Typography } from 'components/atoms';
 import { Card, List, Select } from 'components/molecule';
 import { Quote } from 'dto/quote';
-import {
-	PayInCurrency,
-	PayInCurrencyAtom,
-	QuoteAtom,
-} from 'features/store/payin';
+import { PayInCurrency, PayInCurrencyAtom, QuoteAtom } from 'features/store';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { ConditionalRender } from 'utils/index';
 
 type AcceptPageParamas = {
 	UUID: string;
@@ -142,7 +139,7 @@ export const AcceptQuotePage = () => {
 					]}
 				/>
 
-				{payinCurrency && quote && (
+				<ConditionalRender when={payinCurrency && !!quote}>
 					<List
 						data={[
 							{
@@ -155,7 +152,7 @@ export const AcceptQuotePage = () => {
 							},
 						]}
 					/>
-				)}
+				</ConditionalRender>
 			</Card.Body>
 
 			<Card.Footer>
