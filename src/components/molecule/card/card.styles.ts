@@ -17,8 +17,11 @@ const CardHeader = styled.div`
 const CardBody = styled.div`
 	display: flex;
 	flex-direction: column;
+	margin-top: ${(props) => props.theme.spacing.s}rem;
 `;
 
-const CardFooter = styled.div``;
+const CardFooter = styled.div`
+	margin-top: ${(props) => props.theme.spacing.s}rem;
+`;
 
 export { CardContainer, CardHeader, CardBody, CardFooter };

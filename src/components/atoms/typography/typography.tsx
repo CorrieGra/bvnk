@@ -1,24 +1,7 @@
-import { colours, typography } from 'assets/index';
 import { StyledTypography } from './typography.styles';
-import { memo } from 'react';
+import { TypographyProps } from './typography.types';
 
-export type TypographySpacing = {
-	top?: number;
-	right?: number;
-	bottom?: number;
-	left?: number;
-};
-
-export type TypographyProps = {
-	variant: keyof typeof typography;
-	colour: keyof typeof colours;
-	padding?: TypographySpacing;
-	margin?: TypographySpacing;
-	value?: string;
-	truncated?: boolean;
-};
-
-export const Typography = memo((props: TypographyProps) => {
+export const Typography = (props: TypographyProps) => {
 	const { variant, value, colour, margin, padding, truncated } = props;
 
 	return (
@@ -32,4 +15,4 @@ export const Typography = memo((props: TypographyProps) => {
 			{value}
 		</StyledTypography>
 	);
-});
+};

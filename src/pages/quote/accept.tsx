@@ -1,107 +1,65 @@
-import axios, { AxiosResponse } from 'axios';
 import { Typography } from 'components/atoms';
-import { Select } from 'components/molecule';
-import { Quote } from 'dto/quote';
-import {
-	PayInCurrency,
-	PayInCurrencyAtom,
-	QuoteAtom,
-} from 'features/store/payin';
-import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { Button, Card, List, Select } from 'components/molecule';
+import { SelectOptionProps } from 'components/molecule/select/select';
+import { PayInCurrency, PayInCurrencyAtom, QuoteAtom } from 'features/store';
+import { useTimer } from 'hooks/useTimer';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { ConditionalRender } from 'utils/index';
+import { useQuote, useUpdateQuote } from 'hooks';
 
 type AcceptPageParamas = {
 	UUID: string;
 };
 
-const formatTimeFromTimestamps = (expiryDate: number) => {
-	const msLeft = expiryDate - Date.now();
-
-	if (msLeft <= 0) return '00:00:00';
-
-	const totalSeconds = Math.floor(msLeft / 1000);
-	const hours = Math.floor(totalSeconds / 3600);
-	const minutes = Math.floor((totalSeconds % 3600) / 60);
-	const seconds = totalSeconds % 60;
-
-	const pad = (n: number) => n.toString().padStart(2, '0');
-
-	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-};
-
 export const AcceptQuotePage = () => {
 	const navigate = useNavigate();
-	const [quote, setQuote] = useAtom(QuoteAtom);
+	const { UUID = '' } = useParams<AcceptPageParamas>();
+
+	const redirect = useCallback(() => {
+		navigate(`/payin/${UUID}/expired`);
+	}, [UUID]);
+
+	const { isLoading, error } = useQuote(UUID, redirect);
+	const {
+		updateQuote,
+		isLoading: updateIsLoading,
+		error: updateError,
+	} = useUpdateQuote(UUID);
+	const quote = useAtomValue(QuoteAtom);
 	const [payinCurrency, setPayinCurrency] = useAtom(PayInCurrencyAtom);
-	const { UUID } = useParams<AcceptPageParamas>();
+	const { formatted, createTimer } = useTimer();
 
 	useEffect(() => {
-		const getQuote = async () => {
-			const quoteResponse = await axios.get<Quote>(
-				`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/summary`,
-			);
+		if (!payinCurrency?.value) return;
+		updateQuote(
+			{ currency: payinCurrency.value, payInMethod: 'crypto' },
+			`pay/${UUID}/update/summary`,
+		);
+	}, [payinCurrency?.value]);
 
-			setQuote(quoteResponse.data);
+	useEffect(() => {
+		if (!quote?.acceptanceExpiryDate) return;
+		const interval = createTimer(quote.acceptanceExpiryDate, 100, redirect);
+
+		() => {
+			interval.clear();
 		};
+	}, [quote?.acceptanceExpiryDate]);
 
-		void getQuote();
-	}, []);
-
-	useEffect(() => {
-		if (!!payinCurrency) {
-			const data = {
-				currency: payinCurrency,
-				payInMethod: 'crypto',
-			};
-
-			const updateQuote = async () => {
-				try {
-					const quoteResponse = await axios.put<Quote>(
-						`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/update/summary`,
-						data,
-					);
-
-					const { data: updatedQuote } = quoteResponse;
-					setQuote({ ...quote, ...updatedQuote });
-				} catch (error) {
-					navigate(`/payin/${UUID}/expired`);
-				}
-			};
-
-			void updateQuote();
-		}
-	}, [payinCurrency]);
-
-	const handleCurrencySelect = useCallback((currency: PayInCurrency) => {
-		setPayinCurrency(currency);
-	}, []);
+	const handleCurrencySelect = (currency: SelectOptionProps) =>
+		setPayinCurrency(currency as PayInCurrency);
 
 	const handleConfirmation = useCallback(async () => {
-		try {
-			const data = { successUrl: 'no_url' };
-			const quoteResponse = await axios.put(
-				`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/accept/summary`,
-				data,
-			);
-			const { data: updatedQuote } = quoteResponse;
-			setQuote({ ...quote, ...updatedQuote });
-			navigate(`/payin/${UUID}/pay`);
-		} catch (error) {
-			navigate(`/payin/${UUID}/expired`);
-		}
-	}, []);
+		if (!payinCurrency?.value) return;
+		updateQuote({ success_url: 'no_url' }, `pay/${UUID}/accept/summary`);
+		navigate(`/payin/${UUID}/pay`);
+	}, [UUID, payinCurrency?.value]);
 
 	return (
 		<>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					textAlign: 'center',
-					alignItems: 'center',
-				}}
-			>
+			<Card.Header>
 				<Typography
 					value={quote?.merchantDisplayName}
 					variant='title'
@@ -126,12 +84,12 @@ export const AcceptQuotePage = () => {
 						padding={{ left: 0.25 }}
 					/>
 				</span>
-			</div>
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
+			</Card.Header>
+			<Card.Body>
 				<Select
 					label='Pay with'
 					placeholder='Select a currency'
-					value={payinCurrency ?? ''}
+					value={payinCurrency?.value ?? ''}
 					onChange={handleCurrencySelect}
 					options={[
 						{
@@ -149,59 +107,28 @@ export const AcceptQuotePage = () => {
 					]}
 				/>
 
-				{payinCurrency && (
-					<>
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-							}}
-						>
-							<Typography
-								value='Amount due'
-								variant='body'
-								colour='lightgray'
-							/>
-							<Typography
-								value={`${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`}
-								variant='body'
-								colour='gray'
-							/>
-						</div>
+				<ConditionalRender when={payinCurrency && !!quote?.paidCurrency}>
+					<List
+						data={[
+							{
+								label: 'Amount due',
+								value: `${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`,
+							},
+							{
+								label: 'Quote expires in',
+								value: formatted,
+							},
+						]}
+					/>
+				</ConditionalRender>
+			</Card.Body>
 
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-							}}
-						>
-							<Typography
-								value='Quote expires in'
-								variant='body'
-								colour='lightgray'
-							/>
-							<Typography
-								value={formatTimeFromTimestamps(quote?.expiryDate!)}
-								variant='body'
-								colour='gray'
-							/>
-						</div>
-					</>
-				)}
-			</div>
-
-			<div>
-				<button
-					style={{ display: 'inline-block', width: '100%' }}
+			<Card.Footer>
+				<Button
+					text='Confirm'
 					onClick={handleConfirmation}
-				>
-					Confirm
-				</button>
-			</div>
+				/>
+			</Card.Footer>
 		</>
 	);
 };

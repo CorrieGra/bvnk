@@ -1,10 +1,13 @@
 import { Typography } from 'components/atoms';
-import { QuoteAtom } from 'features/store/payin';
-import { useAtom } from 'jotai';
+import { Card, List, QRCode } from 'components/molecule';
+import { PayInCurrencyAtom, QuoteAtom } from 'features/store';
+import { useQuote, useTimer } from 'hooks';
+import { useAtomValue } from 'jotai';
 import qrcode from 'qrcode';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import { ConditionalRender } from 'utils/index';
 
 type PayQuotePageParamas = {
 	UUID: string;
@@ -12,155 +15,85 @@ type PayQuotePageParamas = {
 
 export const PayQuotePage = () => {
 	const navigate = useNavigate();
-	const { UUID } = useParams<PayQuotePageParamas>();
-	const [quote, _] = useAtom(QuoteAtom);
+	const { UUID = '' } = useParams<PayQuotePageParamas>();
+
+	const redirect = useCallback(() => {
+		navigate(`/payin/${UUID}/expired`);
+	}, [UUID]);
+
+	const { isLoading, error } = useQuote(UUID, redirect);
+	const quote = useAtomValue(QuoteAtom);
+	const payInCurrency = useAtomValue(PayInCurrencyAtom);
 	const [QRCodeSVG, setQRCodeSVG] = useState<string>();
+	const { formatted, createTimer } = useTimer();
 
 	useEffect(() => {
-		const getQRCode = async () => {
-			try {
-				const svg = await qrcode.toDataURL(quote?.address?.address!);
-				setQRCodeSVG(svg);
-			} catch (_) {
-				navigate(`/payin/${UUID}/expired`);
-			}
+		if (!quote?.expiryDate) return;
+		const interval = createTimer(quote.expiryDate, 100, redirect);
+
+		const getQRCode = async (address: string) => {
+			const svg = await qrcode.toDataURL(address);
+			setQRCodeSVG(svg);
 		};
 
-		void getQRCode();
-	}, [quote]);
+		if (quote.address) {
+			getQRCode(quote.address.address);
+		}
 
-	const handleCopy = useCallback(
-		(text: any) => {
-			navigator.clipboard.writeText(text);
-			toast('Copied to clipboard!');
-		},
-		[quote?.address, quote?.paidCurrency],
-	);
+		() => {
+			interval.clear();
+		};
+	}, [quote?.expiryDate, , quote?.address]);
 
 	return (
 		<>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					textAlign: 'center',
-					alignItems: 'center',
-				}}
-			>
+			<Card.Header>
 				<Typography
-					value='Pay with Bitcoin'
+					value={`Pay with ${payInCurrency?.label}`}
 					variant='title'
 					colour='gray'
 				/>
 				<Typography
-					value='To complete this payment send the amount due to the BTC address provided below.'
+					value={`To complete this payment send the amount due to the ${payInCurrency?.value} address provided below.`}
 					variant='caption'
 					colour='lightgray'
 					padding={{ right: 0.25 }}
 					margin={{ top: 1 }}
 				/>
-			</div>
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Typography
-						value='Amount due'
-						variant='body'
-						colour='lightgray'
-					/>
-					<span style={{ display: 'flex' }}>
-						<Typography
-							value={`${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`}
-							variant='body'
-							colour='gray'
-						/>
-						<span onClick={() => handleCopy(quote?.paidCurrency.amount)}>
-							<Typography
-								value='Copy'
-								variant='body'
-								colour='blue'
-								padding={{ left: 0.5 }}
-							/>
-						</span>
-					</span>
-				</div>
+			</Card.Header>
+			<Card.Body>
+				<List
+					data={[
+						{
+							label: 'Amount due',
+							value: `${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`,
+							canBeCopied: true,
+						},
+						{
+							label: `${payInCurrency?.label} address`,
+							value: quote?.address?.address || '',
+							canBeCopied: true,
+							truncateValue: true,
+						},
+					]}
+				/>
 
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Typography
-						value='BTC address'
-						variant='body'
-						colour='lightgray'
+				<ConditionalRender when={!!QRCodeSVG}>
+					<QRCode
+						src={QRCodeSVG!}
+						caption={quote?.address?.address!}
 					/>
-					<span style={{ display: 'flex' }}>
-						<Typography
-							value={quote?.address?.address}
-							variant='body'
-							colour='gray'
-							truncated
-						/>
-						<span onClick={() => handleCopy(quote?.address?.address!)}>
-							<Typography
-								value='Copy'
-								variant='body'
-								colour='blue'
-								padding={{ left: 0.5 }}
-							/>
-						</span>
-					</span>
-				</div>
+				</ConditionalRender>
 
-				{QRCodeSVG && (
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<img
-							src={QRCodeSVG}
-							width={140}
-							height={140}
-						/>
-						<Typography
-							value={quote?.address?.address}
-							variant='body'
-							colour='lightgray'
-						/>
-					</div>
-				)}
-
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
-					<Typography
-						value='Time left to pay'
-						variant='body'
-						colour='lightgray'
-					/>
-					<Typography
-						value='00:00:31'
-						variant='body'
-						colour='gray'
-					/>
-				</div>
-			</div>
+				<List
+					data={[
+						{
+							label: 'Time left to pay',
+							value: formatted,
+						},
+					]}
+				/>
+			</Card.Body>
 			<ToastContainer />
 		</>
 	);

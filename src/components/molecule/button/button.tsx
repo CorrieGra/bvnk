@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes } from 'react';
 import { StyledButton } from './button.styles';
-import { Typography } from '../typography';
+import { Typography } from 'components/atoms/index';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 	text: string;

@@ -8,7 +8,9 @@
 			"features/*": ["./features/*"],
 			"pages/*": ["./pages/*"],
 			"services/*": ["./services/*"],
-			"dto/*": ["./dto/*"]
+			"dto/*": ["./dto/*"],
+			"utils/*": ["./utils/*"],
+			"hooks/*": ["./hooks/*"]
 		}
 	}
 }
