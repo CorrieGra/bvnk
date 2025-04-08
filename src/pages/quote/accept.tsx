@@ -1,12 +1,13 @@
-import axios from 'axios';
-import { Button, Typography } from 'components/atoms';
-import { Card, List, Select } from 'components/molecule';
-import { Quote } from 'dto/quote';
+import { Typography } from 'components/atoms';
+import { Button, Card, List, Select } from 'components/molecule';
+import { SelectOptionProps } from 'components/molecule/select/select';
 import { PayInCurrency, PayInCurrencyAtom, QuoteAtom } from 'features/store';
-import { useAtom } from 'jotai';
+import { useTimer } from 'hooks/useTimer';
+import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ConditionalRender, formatTimeFromTimestamps } from 'utils/index';
+import { ConditionalRender } from 'utils/index';
+import { useQuote, useUpdateQuote } from 'hooks';
 
 type AcceptPageParamas = {
 	UUID: string;
@@ -14,65 +15,47 @@ type AcceptPageParamas = {
 
 export const AcceptQuotePage = () => {
 	const navigate = useNavigate();
-	const [quote, setQuote] = useAtom(QuoteAtom);
+	const { UUID = '' } = useParams<AcceptPageParamas>();
+
+	const redirect = useCallback(() => {
+		navigate(`/payin/${UUID}/expired`);
+	}, [UUID]);
+
+	const { isLoading, error } = useQuote(UUID, redirect);
+	const {
+		updateQuote,
+		isLoading: updateIsLoading,
+		error: updateError,
+	} = useUpdateQuote(UUID);
+	const quote = useAtomValue(QuoteAtom);
 	const [payinCurrency, setPayinCurrency] = useAtom(PayInCurrencyAtom);
-	const { UUID } = useParams<AcceptPageParamas>();
+	const { formatted, createTimer } = useTimer();
 
 	useEffect(() => {
-		const getQuote = async () => {
-			const quoteResponse = await axios.get<Quote>(
-				`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/summary`,
-			);
+		if (!payinCurrency?.value) return;
+		updateQuote(
+			{ currency: payinCurrency.value, payInMethod: 'crypto' },
+			`pay/${UUID}/update/summary`,
+		);
+	}, [payinCurrency?.value]);
 
-			setQuote(quoteResponse.data);
+	useEffect(() => {
+		if (!quote?.acceptanceExpiryDate) return;
+		const interval = createTimer(quote.acceptanceExpiryDate, 100, redirect);
+
+		() => {
+			interval.clear();
 		};
+	}, [quote?.acceptanceExpiryDate]);
 
-		void getQuote();
-	}, []);
-
-	useEffect(() => {
-		if (!!payinCurrency) {
-			const data = {
-				currency: payinCurrency,
-				payInMethod: 'crypto',
-			};
-
-			const updateQuote = async () => {
-				try {
-					const quoteResponse = await axios.put<Quote>(
-						`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/update/summary`,
-						data,
-					);
-
-					const { data: updatedQuote } = quoteResponse;
-					setQuote({ ...quote, ...updatedQuote });
-				} catch (error) {
-					navigate(`/payin/${UUID}/expired`);
-				}
-			};
-
-			void updateQuote();
-		}
-	}, [payinCurrency]);
-
-	const handleCurrencySelect = useCallback((currency: PayInCurrency) => {
-		setPayinCurrency(currency);
-	}, []);
+	const handleCurrencySelect = (currency: SelectOptionProps) =>
+		setPayinCurrency(currency as PayInCurrency);
 
 	const handleConfirmation = useCallback(async () => {
-		try {
-			const data = { successUrl: 'no_url' };
-			const quoteResponse = await axios.put(
-				`https://api.sandbox.bvnk.com/api/v1/pay/${UUID}/accept/summary`,
-				data,
-			);
-			const { data: updatedQuote } = quoteResponse;
-			setQuote({ ...quote, ...updatedQuote });
-			navigate(`/payin/${UUID}/pay`);
-		} catch (error) {
-			navigate(`/payin/${UUID}/expired`);
-		}
-	}, []);
+		if (!payinCurrency?.value) return;
+		updateQuote({ success_url: 'no_url' }, `pay/${UUID}/accept/summary`);
+		navigate(`/payin/${UUID}/pay`);
+	}, [UUID, payinCurrency?.value]);
 
 	return (
 		<>
@@ -106,7 +89,7 @@ export const AcceptQuotePage = () => {
 				<Select
 					label='Pay with'
 					placeholder='Select a currency'
-					value={payinCurrency ?? ''}
+					value={payinCurrency?.value ?? ''}
 					onChange={handleCurrencySelect}
 					options={[
 						{
@@ -124,7 +107,7 @@ export const AcceptQuotePage = () => {
 					]}
 				/>
 
-				<ConditionalRender when={payinCurrency && !!quote}>
+				<ConditionalRender when={payinCurrency && !!quote?.paidCurrency}>
 					<List
 						data={[
 							{
@@ -133,7 +116,7 @@ export const AcceptQuotePage = () => {
 							},
 							{
 								label: 'Quote expires in',
-								value: formatTimeFromTimestamps(quote?.expiryDate!),
+								value: formatted,
 							},
 						]}
 					/>

@@ -1,9 +1,10 @@
 import { Typography } from 'components/atoms';
-import { Card, List } from 'components/molecule';
+import { Card, List, QRCode } from 'components/molecule';
 import { PayInCurrencyAtom, QuoteAtom } from 'features/store';
-import { useAtom, useAtomValue } from 'jotai';
+import { useQuote, useTimer } from 'hooks';
+import { useAtomValue } from 'jotai';
 import qrcode from 'qrcode';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ToastContainer } from 'react-toastify';
 import { ConditionalRender } from 'utils/index';
@@ -14,34 +15,46 @@ type PayQuotePageParamas = {
 
 export const PayQuotePage = () => {
 	const navigate = useNavigate();
-	const { UUID } = useParams<PayQuotePageParamas>();
-	const [quote, _] = useAtom(QuoteAtom);
+	const { UUID = '' } = useParams<PayQuotePageParamas>();
+
+	const redirect = useCallback(() => {
+		navigate(`/payin/${UUID}/expired`);
+	}, [UUID]);
+
+	const { isLoading, error } = useQuote(UUID, redirect);
+	const quote = useAtomValue(QuoteAtom);
 	const payInCurrency = useAtomValue(PayInCurrencyAtom);
 	const [QRCodeSVG, setQRCodeSVG] = useState<string>();
+	const { formatted, createTimer } = useTimer();
 
 	useEffect(() => {
-		const getQRCode = async () => {
-			try {
-				const svg = await qrcode.toDataURL(quote?.address?.address!);
-				setQRCodeSVG(svg);
-			} catch (_) {
-				navigate(`/payin/${UUID}/expired`);
-			}
+		if (!quote?.expiryDate) return;
+		const interval = createTimer(quote.expiryDate, 100, redirect);
+
+		const getQRCode = async (address: string) => {
+			const svg = await qrcode.toDataURL(address);
+			setQRCodeSVG(svg);
 		};
 
-		void getQRCode();
-	}, [quote]);
+		if (quote.address) {
+			getQRCode(quote.address.address);
+		}
+
+		() => {
+			interval.clear();
+		};
+	}, [quote?.expiryDate, , quote?.address]);
 
 	return (
 		<>
 			<Card.Header>
 				<Typography
-					value='Pay with Bitcoin'
+					value={`Pay with ${payInCurrency?.label}`}
 					variant='title'
 					colour='gray'
 				/>
 				<Typography
-					value='To complete this payment send the amount due to the BTC address provided below.'
+					value={`To complete this payment send the amount due to the ${payInCurrency?.value} address provided below.`}
 					variant='caption'
 					colour='lightgray'
 					padding={{ right: 0.25 }}
@@ -57,7 +70,7 @@ export const PayQuotePage = () => {
 							canBeCopied: true,
 						},
 						{
-							label: `${payInCurrency} address`,
+							label: `${payInCurrency?.label} address`,
 							value: quote?.address?.address || '',
 							canBeCopied: true,
 							truncateValue: true,
@@ -66,32 +79,17 @@ export const PayQuotePage = () => {
 				/>
 
 				<ConditionalRender when={!!QRCodeSVG}>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<img
-							src={QRCodeSVG}
-							width={140}
-							height={140}
-						/>
-						<Typography
-							value={quote?.address?.address}
-							variant='body'
-							colour='lightgray'
-						/>
-					</div>
+					<QRCode
+						src={QRCodeSVG!}
+						caption={quote?.address?.address!}
+					/>
 				</ConditionalRender>
 
 				<List
 					data={[
 						{
 							label: 'Time left to pay',
-							value: quote?.quoteExpiryDate!.toString() ?? '00:00:00',
+							value: formatted,
 						},
 					]}
 				/>
