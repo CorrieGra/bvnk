@@ -4,7 +4,8 @@ import { ListContainer } from './list.styles';
 export type ListData = {
 	label: string;
 	value: string;
-	canBeCopied: boolean;
+	canBeCopied?: boolean;
+	truncateValue?: boolean;
 };
 
 type ListProps = {
@@ -16,11 +17,12 @@ export const List = (props: ListProps) => {
 
 	return (
 		<ListContainer>
-			{data.map(({ label, value, canBeCopied }) => (
+			{data.map(({ label, value, canBeCopied, truncateValue }) => (
 				<ListItem
 					label={label}
 					value={value}
 					canBeCopied={!!canBeCopied}
+					truncateValue={!!truncateValue}
 				/>
 			))}
 		</ListContainer>

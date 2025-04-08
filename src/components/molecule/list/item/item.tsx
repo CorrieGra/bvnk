@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ListData } from '../';
 
 export const ListItem = (props: ListData) => {
-	const { label, value, canBeCopied } = props;
+	const { label, value, canBeCopied, truncateValue } = props;
 
 	const handleCopy = useCallback((text: any) => {
 		navigator.clipboard.writeText(text);
@@ -24,6 +24,7 @@ export const ListItem = (props: ListData) => {
 					value={value}
 					variant='body'
 					colour='gray'
+					truncated={truncateValue}
 				/>
 				{canBeCopied && (
 					<span onClick={() => handleCopy(value)}>
