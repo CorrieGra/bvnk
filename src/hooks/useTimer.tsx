@@ -1,22 +1,37 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export const useTimer = (targetTimestamp: number | null) => {
-	const getRemaining = () =>
-		targetTimestamp ? Math.max(targetTimestamp - Date.now(), 0) : null;
-	const [remaining, setRemaining] = useState<number | null>(getRemaining());
+export const useTimer = () => {
+	const getRemaining = (targetTimestamp: number) =>
+		Math.max(targetTimestamp - Date.now(), 0);
+	const [remaining, setRemaining] = useState<number>(1);
 
-	useEffect(() => {
-		setRemaining(getRemaining());
+	const createTimer = useCallback(
+		(
+			targetTimestamp: number,
+			duration: number,
+			cb: () => void,
+		): { clear: () => any } => {
+			setRemaining(getRemaining(targetTimestamp));
 
-		const interval = setInterval(() => {
-			setRemaining(getRemaining());
-		}, 1000);
+			const interval = setInterval(() => {
+				const newRemaining = getRemaining(targetTimestamp);
+				setRemaining(newRemaining);
 
-		return () => clearInterval(interval);
-	}, [targetTimestamp]);
+				if (newRemaining <= 0) {
+					clearInterval(interval);
+					cb();
+				}
+			}, duration);
+
+			return {
+				clear: () => clearInterval(interval),
+			};
+		},
+		[],
+	);
 
 	const getFormattedTime = useMemo(() => {
-		if (remaining === null) return '--:--:--';
+		if (remaining === 0) return '00:00:00';
 
 		const totalSeconds = Math.floor(remaining / 1000);
 		const hours = Math.floor(totalSeconds / 3600);
@@ -27,10 +42,8 @@ export const useTimer = (targetTimestamp: number | null) => {
 		return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 	}, [remaining]);
 
-	const isExpired = remaining !== null && remaining <= 0;
-
 	return {
+		createTimer,
 		formatted: getFormattedTime,
-		isExpired,
 	};
 };
