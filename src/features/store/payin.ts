@@ -1,7 +1,10 @@
 import { Quote } from 'dto/quote';
 import { atomWithSessionStorage } from './persistant-atom';
 
-type PayInCurrency = 'BTC' | 'ETH' | 'LTC';
+type PayInCurrency = {
+	value: 'BTC' | 'ETH' | 'LTC';
+	label: string;
+};
 
 const QuoteAtom = atomWithSessionStorage<Quote | null>('quote', null);
 const PayInCurrencyAtom = atomWithSessionStorage<PayInCurrency | null>(

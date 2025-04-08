@@ -9,7 +9,6 @@ import {
 	SelectOptionContainer,
 } from './select.styles';
 import { Icon, Typography } from 'components/atoms';
-import { PayInCurrency } from 'features/store/payin';
 
 export type SelectOptionProps = {
 	label: string;
@@ -21,7 +20,7 @@ export type SelectProps = {
 	value: string;
 	placeholder: string;
 	options: SelectOptionProps[];
-	onChange: (selection: PayInCurrency) => void;
+	onChange: (selection: any) => void;
 };
 
 export const Select = (props: SelectProps) => {
@@ -65,9 +64,7 @@ export const Select = (props: SelectProps) => {
 				</SelectControl>
 				<SelectOptionContainer isOpen={isOpen}>
 					{options.map((option) => (
-						<SelectOption
-							onClick={(e) => onChange(option.value as PayInCurrency)}
-						>
+						<SelectOption onClick={(e) => onChange(option)}>
 							<Typography
 								value={option.value}
 								variant='body'
