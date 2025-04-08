@@ -11,6 +11,7 @@ module.exports = {
 			services: path.resolve(__dirname, 'src/services'),
 			dto: path.resolve(__dirname, 'src/dto'),
 			utils: path.resolve(__dirname, 'src/utils'),
+			hooks: path.resolve(__dirname, 'src/hooks'),
 		},
 	},
 };

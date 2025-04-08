@@ -18,7 +18,7 @@ export type TypographyProps = {
 	truncated?: boolean;
 };
 
-export const Typography = memo((props: TypographyProps) => {
+export const Typography = (props: TypographyProps) => {
 	const { variant, value, colour, margin, padding, truncated } = props;
 
 	return (
@@ -32,4 +32,4 @@ export const Typography = memo((props: TypographyProps) => {
 			{value}
 		</StyledTypography>
 	);
-});
+};
