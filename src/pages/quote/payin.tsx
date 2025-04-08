@@ -1,4 +1,5 @@
 import { Typography } from 'components/atoms';
+import { Card } from 'components/molecule';
 import { QuoteAtom } from 'features/store/payin';
 import { useAtom } from 'jotai';
 import qrcode from 'qrcode';
@@ -39,14 +40,7 @@ export const PayQuotePage = () => {
 
 	return (
 		<>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					textAlign: 'center',
-					alignItems: 'center',
-				}}
-			>
+			<Card.Header>
 				<Typography
 					value='Pay with Bitcoin'
 					variant='title'
@@ -59,8 +53,8 @@ export const PayQuotePage = () => {
 					padding={{ right: 0.25 }}
 					margin={{ top: 1 }}
 				/>
-			</div>
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
+			</Card.Header>
+			<Card.Body>
 				<div
 					style={{
 						display: 'flex',
@@ -160,7 +154,7 @@ export const PayQuotePage = () => {
 						colour='gray'
 					/>
 				</div>
-			</div>
+			</Card.Body>
 			<ToastContainer />
 		</>
 	);

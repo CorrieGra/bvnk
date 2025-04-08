@@ -1,4 +1,5 @@
 import { colours } from 'assets/colour';
+import { Card } from 'components/molecule';
 import { Outlet } from 'react-router';
 
 export const PayinPageWrapper = () => {
@@ -13,16 +14,9 @@ export const PayinPageWrapper = () => {
 				backgroundColor: `${colours['lightgray']}`,
 			}}
 		>
-			<div
-				style={{
-					padding: 24,
-					backgroundColor: 'white',
-					borderRadius: 10,
-					maxWidth: 'fit-content',
-				}}
-			>
+			<Card>
 				<Outlet />
-			</div>
+			</Card>
 		</div>
 	);
 };

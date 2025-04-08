@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
-import { Typography } from 'components/atoms';
-import { Select } from 'components/molecule';
+import { Button, Typography } from 'components/atoms';
+import { Card, Select } from 'components/molecule';
 import { Quote } from 'dto/quote';
 import {
 	PayInCurrency,
@@ -94,14 +94,7 @@ export const AcceptQuotePage = () => {
 
 	return (
 		<>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					textAlign: 'center',
-					alignItems: 'center',
-				}}
-			>
+			<Card.Header>
 				<Typography
 					value={quote?.merchantDisplayName}
 					variant='title'
@@ -126,8 +119,8 @@ export const AcceptQuotePage = () => {
 						padding={{ left: 0.25 }}
 					/>
 				</span>
-			</div>
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
+			</Card.Header>
+			<Card.Body>
 				<Select
 					label='Pay with'
 					placeholder='Select a currency'
@@ -192,16 +185,14 @@ export const AcceptQuotePage = () => {
 						</div>
 					</>
 				)}
-			</div>
+			</Card.Body>
 
-			<div>
-				<button
-					style={{ display: 'inline-block', width: '100%' }}
+			<Card.Footer>
+				<Button
+					text='Confirm'
 					onClick={handleConfirmation}
-				>
-					Confirm
-				</button>
-			</div>
+				/>
+			</Card.Footer>
 		</>
 	);
 };

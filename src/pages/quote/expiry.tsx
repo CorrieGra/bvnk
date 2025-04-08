@@ -1,15 +1,9 @@
 import { Icon, Typography } from 'components/atoms';
+import { Card } from 'components/molecule';
 
 export const ExpiredQuotePage = () => {
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				textAlign: 'center',
-				alignItems: 'center',
-			}}
-		>
+		<Card.Header>
 			<Icon
 				type='FaExclamationCircle'
 				colour='coralorange'
@@ -25,6 +19,6 @@ export const ExpiredQuotePage = () => {
 				colour='lightgray'
 				padding={{ right: 0.25 }}
 			/>
-		</div>
+		</Card.Header>
 	);
 };
