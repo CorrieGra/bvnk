@@ -10,7 +10,8 @@
 			"services/*": ["./services/*"],
 			"dto/*": ["./dto/*"],
 			"utils/*": ["./utils/*"],
-			"hooks/*": ["./hooks/*"]
+			"hooks/*": ["./hooks/*"],
+			"routes/*": ["./routes/*"]
 		}
 	}
 }

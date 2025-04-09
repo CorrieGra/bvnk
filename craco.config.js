@@ -12,6 +12,7 @@ module.exports = {
 			dto: path.resolve(__dirname, 'src/dto'),
 			utils: path.resolve(__dirname, 'src/utils'),
 			hooks: path.resolve(__dirname, 'src/hooks'),
+			routes: path.resolve(__dirname, 'src/routes'),
 		},
 	},
 };
