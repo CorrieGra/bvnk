@@ -40,10 +40,10 @@ export const PayQuotePage = () => {
 			getQRCode(quote.address.address);
 		}
 
-		() => {
+		return () => {
 			interval.clear();
 		};
-	}, [quote?.expiryDate, , quote?.address]);
+	}, [quote]);
 
 	return (
 		<>

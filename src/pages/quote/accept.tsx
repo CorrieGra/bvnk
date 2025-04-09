@@ -49,7 +49,7 @@ export const AcceptQuotePage = () => {
 		if (!quote?.acceptanceExpiryDate) return;
 		const interval = createTimer(quote.acceptanceExpiryDate, 1000, redirect);
 
-		() => {
+		return () => {
 			interval.clear();
 		};
 	}, [quote?.acceptanceExpiryDate]);
