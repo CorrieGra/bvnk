@@ -29,7 +29,7 @@ export const PayQuotePage = () => {
 
 	useEffect(() => {
 		if (!quote?.expiryDate) return;
-		const interval = createTimer(quote.expiryDate, 100, redirect);
+		const interval = createTimer(quote.expiryDate, 1000, redirect);
 
 		const getQRCode = async (address: string) => {
 			const svg = await qrcode.toDataURL(address);
