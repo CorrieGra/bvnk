@@ -27,7 +27,7 @@ const SelectControl = styled.div`
 	min-height: ${(props) => props.theme.spacing.xs * 10}rem;
 `;
 
-const SelectOptionContainer = styled.div<{ isOpen: boolean }>`
+const SelectOptionContainer = styled.div<{ $isOpen: boolean }>`
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -40,7 +40,7 @@ const SelectOptionContainer = styled.div<{ isOpen: boolean }>`
 	overflow-y: auto;
 	z-index: 10;
 	margin-top: ${(props) => props.theme.spacing.xs}rem;
-	display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+	display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
 `;
 
 const SelectOption = styled.div`

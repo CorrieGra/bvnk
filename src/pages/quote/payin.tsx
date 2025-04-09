@@ -50,15 +50,15 @@ export const PayQuotePage = () => {
 			<Card.Header>
 				<Typography
 					value={`Pay with ${payInCurrency?.label}`}
-					variant='title'
-					colour='gray'
+					$variant='title'
+					$colour='gray'
 				/>
 				<Typography
 					value={`To complete this payment send the amount due to the ${payInCurrency?.value} address provided below.`}
-					variant='caption'
-					colour='lightgray'
-					padding={{ right: 0.25 }}
-					margin={{ top: 1 }}
+					$variant='caption'
+					$colour='lightgray'
+					$padding={{ right: 0.25 }}
+					$margin={{ top: 1 }}
 				/>
 			</Card.Header>
 			<Card.Body>

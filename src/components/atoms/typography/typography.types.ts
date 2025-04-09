@@ -8,10 +8,10 @@ export type TypographySpacing = {
 };
 
 export type TypographyProps = {
-	variant: keyof typeof typography;
-	colour: keyof typeof colours;
-	padding?: TypographySpacing;
-	margin?: TypographySpacing;
+	$variant: keyof typeof typography;
+	$colour: keyof typeof colours;
+	$padding?: TypographySpacing;
+	$margin?: TypographySpacing;
 	value?: string;
-	truncated?: boolean;
+	$truncated?: boolean;
 };

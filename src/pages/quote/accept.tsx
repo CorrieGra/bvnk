@@ -19,11 +19,15 @@ export const AcceptQuotePage = () => {
 	const quote = useAtomValue(QuoteAtom);
 	const [payinCurrency, setPayinCurrency] = useAtom(PayInCurrencyAtom);
 
+	const updateRedirect = useCallback(async () => {
+		navigate(`/payin/${UUID}/expired`);
+	}, [UUID]);
+
 	const {
 		updateQuote,
 		isLoading: updateIsLoading,
 		error: updateError,
-	} = useUpdateQuote(UUID);
+	} = useUpdateQuote(UUID, updateRedirect);
 
 	const redirect = useCallback(async () => {
 		if (payinCurrency) {
@@ -68,26 +72,26 @@ export const AcceptQuotePage = () => {
 			<Card.Header>
 				<Typography
 					value={quote?.merchantDisplayName}
-					variant='title'
-					colour='gray'
+					$variant='title'
+					$colour='gray'
 				/>
 				<Typography
 					value={`${quote?.displayCurrency.amount} ${quote?.displayCurrency.currency}`}
-					variant='heading'
-					colour='gray'
+					$variant='heading'
+					$colour='gray'
 				/>
 				<span style={{ display: 'flex', alignSelf: 'center' }}>
 					<Typography
 						value='For reference number:'
-						variant='caption'
-						colour='lightgray'
-						padding={{ right: 0.25 }}
+						$variant='caption'
+						$colour='lightgray'
+						$padding={{ right: 0.25 }}
 					/>
 					<Typography
 						value={`${quote?.reference}`}
-						variant='caption'
-						colour='gray'
-						padding={{ left: 0.25 }}
+						$variant='caption'
+						$colour='gray'
+						$padding={{ left: 0.25 }}
 					/>
 				</span>
 			</Card.Header>
@@ -131,7 +135,7 @@ export const AcceptQuotePage = () => {
 
 			<Card.Footer>
 				<Button
-					text='Confirm'
+					value='Confirm'
 					onClick={handleConfirmation}
 				/>
 			</Card.Footer>

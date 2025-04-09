@@ -3,18 +3,18 @@ import { StyledButton } from './button.styles';
 import { Typography } from 'components/atoms/index';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-	text: string;
+	value: string;
 };
 
 export const Button = (props: ButtonProps) => {
-	const { text } = props;
+	const { value } = props;
 
 	return (
 		<StyledButton {...props}>
 			<Typography
-				value={text}
-				variant='body'
-				colour='white'
+				value={value}
+				$variant='body'
+				$colour='white'
 			/>
 		</StyledButton>
 	);

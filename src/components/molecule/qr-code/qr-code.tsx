@@ -25,8 +25,8 @@ export const QRCode = (props: QRCodeProps) => {
 			/>
 			<Typography
 				value={caption}
-				variant='body'
-				colour='lightgray'
+				$variant='body'
+				$colour='lightgray'
 			/>
 		</QRCodeContainer>
 	);

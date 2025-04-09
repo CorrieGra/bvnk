@@ -50,25 +50,28 @@ export const Select = (props: SelectProps) => {
 			<SelectLabel>
 				<Typography
 					value={label}
-					variant='body'
-					colour='lightgray'
+					$variant='body'
+					$colour='lightgray'
 				/>
 			</SelectLabel>
 			<SelectControlContainer onClick={() => setIsOpen((prev) => !prev)}>
 				<SelectControl>
 					<Typography
 						value={selectedOption?.value || placeholder}
-						variant='body'
-						colour='gray'
+						$variant='body'
+						$colour='gray'
 					/>
 				</SelectControl>
-				<SelectOptionContainer isOpen={isOpen}>
-					{options.map((option) => (
-						<SelectOption onClick={(e) => onChange(option)}>
+				<SelectOptionContainer $isOpen={isOpen}>
+					{options.map((option, i) => (
+						<SelectOption
+							key={Math.abs(Math.random() * 1_000) * i + 1}
+							onClick={(e) => onChange(option)}
+						>
 							<Typography
 								value={option.value}
-								variant='body'
-								colour='gray'
+								$variant='body'
+								$colour='gray'
 							/>
 						</SelectOption>
 					))}
