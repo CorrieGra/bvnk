@@ -10,14 +10,14 @@ export const ExpiredQuotePage = () => {
 			/>
 			<Typography
 				value='Payment details expired'
-				variant='heading'
-				colour='gray'
+				$variant='heading'
+				$colour='gray'
 			/>
 			<Typography
 				value='The payment details for your transaction have expired.'
-				variant='caption'
-				colour='lightgray'
-				padding={{ right: 0.25 }}
+				$variant='caption'
+				$colour='lightgray'
+				$padding={{ right: 0.25 }}
 			/>
 		</Card.Header>
 	);

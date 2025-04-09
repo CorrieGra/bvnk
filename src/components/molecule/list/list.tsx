@@ -17,8 +17,9 @@ export const List = (props: ListProps) => {
 
 	return (
 		<ListContainer>
-			{data.map(({ label, value, canBeCopied, truncateValue }) => (
+			{data.map(({ label, value, canBeCopied, truncateValue }, i) => (
 				<ListItem
+					key={Math.abs(Math.random() * 1_000) * i + 1}
 					label={label}
 					value={value}
 					canBeCopied={!!canBeCopied}

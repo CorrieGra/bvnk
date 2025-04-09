@@ -5,6 +5,11 @@ const CardContainer = styled.div`
 	background-color: ${(props) => props.theme.colours.white};
 	border-radius: 10px;
 	max-width: fit-content;
+
+	@media (max-width: 768px) {
+		margin-left: ${(props) => props.theme.spacing.m}rem;
+		margin-right: ${(props) => props.theme.spacing.m}rem;
+	}
 `;
 
 const CardHeader = styled.div`

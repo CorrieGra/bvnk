@@ -16,23 +16,23 @@ export const ListItem = (props: ListData) => {
 		<ListItemContainer>
 			<Typography
 				value={label}
-				variant='body'
-				colour='lightgray'
+				$variant='body'
+				$colour='lightgray'
 			/>
 			<ListItemInnerContainer>
 				<Typography
 					value={value}
-					variant='body'
-					colour='gray'
-					truncated={truncateValue}
+					$variant='body'
+					$colour='gray'
+					$truncated={truncateValue}
 				/>
 				{canBeCopied && (
 					<span onClick={() => handleCopy(value)}>
 						<Typography
 							value='Copy'
-							variant='body'
-							colour='blue'
-							padding={{ left: 0.5 }}
+							$variant='body'
+							$colour='blue'
+							$padding={{ left: 0.5 }}
 						/>
 					</span>
 				)}
