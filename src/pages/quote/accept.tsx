@@ -16,19 +16,25 @@ type AcceptPageParamas = {
 export const AcceptQuotePage = () => {
 	const navigate = useNavigate();
 	const { UUID = '' } = useParams<AcceptPageParamas>();
+	const quote = useAtomValue(QuoteAtom);
+	const [payinCurrency, setPayinCurrency] = useAtom(PayInCurrencyAtom);
 
-	const redirect = useCallback(() => {
-		navigate(`/payin/${UUID}/expired`);
-	}, [UUID]);
-
-	const { isLoading, error } = useQuote(UUID, redirect);
 	const {
 		updateQuote,
 		isLoading: updateIsLoading,
 		error: updateError,
 	} = useUpdateQuote(UUID);
-	const quote = useAtomValue(QuoteAtom);
-	const [payinCurrency, setPayinCurrency] = useAtom(PayInCurrencyAtom);
+
+	const redirect = useCallback(async () => {
+		if (payinCurrency) {
+			await updateQuote(
+				{ currency: payinCurrency.value, payInMethod: 'crypto' },
+				`pay/${UUID}/update/summary`,
+			);
+		}
+	}, [UUID, payinCurrency]);
+
+	const { isLoading, error } = useQuote(UUID, redirect);
 	const { formatted, createTimer } = useTimer();
 
 	useEffect(() => {
@@ -41,7 +47,7 @@ export const AcceptQuotePage = () => {
 
 	useEffect(() => {
 		if (!quote?.acceptanceExpiryDate) return;
-		const interval = createTimer(quote.acceptanceExpiryDate, 100, redirect);
+		const interval = createTimer(quote.acceptanceExpiryDate, 1000, redirect);
 
 		() => {
 			interval.clear();
@@ -112,7 +118,7 @@ export const AcceptQuotePage = () => {
 						data={[
 							{
 								label: 'Amount due',
-								value: `${quote?.paidCurrency.amount} ${quote?.paidCurrency.currency}`,
+								value: `${quote?.paidCurrency.amount} ${payinCurrency?.value}`,
 							},
 							{
 								label: 'Quote expires in',
