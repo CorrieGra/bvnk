@@ -11,7 +11,10 @@ type UseUpdateQuoteResult = {
 	error: unknown;
 };
 
-export const useUpdateQuote = (UUID: string): UseUpdateQuoteResult => {
+export const useUpdateQuote = (
+	UUID: string,
+	redirect: () => void,
+): UseUpdateQuoteResult => {
 	const [quote, setQuote] = useAtom(QuoteAtom);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<unknown>(null);
@@ -36,9 +39,10 @@ export const useUpdateQuote = (UUID: string): UseUpdateQuoteResult => {
 				const quoteData = response.data;
 				setQuote(quoteData);
 			} catch (err) {
-				if ((err as any).code !== 'ERR_CANCELED') {
+				if ((err as any).response.data.code === 'MER-PAY-2017') {
+					redirect();
+				} else {
 					setError(err);
-					console.error('Error updating quote:', err);
 				}
 			} finally {
 				setIsLoading(false);
